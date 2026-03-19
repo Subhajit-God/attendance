@@ -6,33 +6,28 @@
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: Arial;
       background: linear-gradient(135deg, #667eea, #764ba2);
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      height: 100vh;
     }
 
     .container {
       width: 340px;
-      padding: 25px;
+      padding: 20px;
+      margin-top: 40px;
       border-radius: 16px;
       background: #fff;
       box-shadow: 0 10px 25px rgba(0,0,0,0.2);
       text-align: center;
     }
 
-    h2 {
-      margin-bottom: 5px;
-    }
-
     .date-box {
-      background: #f1f1f1;
+      background: #eee;
       padding: 8px;
       border-radius: 8px;
       margin-bottom: 15px;
-      font-size: 14px;
     }
 
     .status-buttons button {
@@ -41,65 +36,46 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      width: 90px;
-      font-weight: bold;
-      opacity: 0.85;
-      transition: 0.2s;
     }
 
-    .status-buttons button:hover {
-      transform: scale(1.05);
-    }
+    .active { border: 2px solid black; }
 
-    .status-buttons button.active {
-      border: 2px solid black;
-      opacity: 1;
-    }
-
-    .present { background: #4CAF50; color: white; }
-    .absent { background: #f44336; color: white; }
-    .holiday { background: #ff9800; color: white; }
+    .present { background: green; color: white; }
+    .absent { background: red; color: white; }
+    .holiday { background: orange; color: white; }
 
     input {
-      width: 92%;
+      width: 90%;
       padding: 10px;
+      margin-top: 10px;
       border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-top: 12px;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: #667eea;
     }
 
     button.submit {
       width: 100%;
-      padding: 12px;
-      margin-top: 15px;
-      border: none;
-      border-radius: 10px;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
       background: #667eea;
       color: white;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
+      border: none;
     }
 
-    button.submit:hover {
-      background: #5a67d8;
+    table {
+      margin-top: 20px;
+      width: 340px;
+      background: white;
+      border-collapse: collapse;
+      border-radius: 10px;
+      overflow: hidden;
     }
 
-    #msg {
-      margin-top: 12px;
-      font-size: 14px;
-      font-weight: bold;
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
     }
 
-    .status-text {
-      margin-top: 10px;
-      font-size: 14px;
-    }
   </style>
 </head>
 
@@ -108,7 +84,6 @@
 <div class="container">
 
   <h2 id="welcome"></h2>
-
   <div class="date-box" id="dateBox"></div>
 
   <div class="status-buttons">
@@ -117,78 +92,98 @@
     <button class="holiday" onclick="setStatus('Holiday', this)">Holiday</button>
   </div>
 
-  <input type="text" id="remark" placeholder="Add remark (optional)">
-
-  <button class="submit" id="submitBtn" onclick="submitAttendance()">Submit</button>
-
-  <p class="status-text">Today's Status: <span id="currentStatus">Not marked</span></p>
+  <input id="remark" placeholder="Remark (optional)">
+  <button class="submit" onclick="submitAttendance()">Submit</button>
 
   <p id="msg"></p>
 
 </div>
 
+<!-- 📊 HISTORY TABLE -->
+<table>
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Day</th>
+      <th>Status</th>
+      <th>Remark</th>
+    </tr>
+  </thead>
+  <tbody id="historyTable"></tbody>
+</table>
+
 <script>
 
-  const name = "Subhajit Das";
-  let selectedStatus = "";
+const name = "Subhajit Das";
+const scriptURL = "https://script.google.com/macros/s/AKfycbz-_IDiCQ7AvU9evIvMFDGku5pBxxELu10vi-RhB2cUnl667kbzUcu7-GSQXIBg1Ca2/exec";
 
-  const today = new Date();
-  const date = today.toLocaleDateString();
-  const day = today.toLocaleDateString('en-US', { weekday: 'long' });
+let selectedStatus = "";
 
-  document.getElementById("welcome").innerText =
-    `👋 Welcome, ${name}`;
+const today = new Date();
+const date = today.toLocaleDateString();
+const day = today.toLocaleDateString('en-US', { weekday: 'long' });
 
-  document.getElementById("dateBox").innerText =
-    `📅 ${day}, ${date}`;
+document.getElementById("welcome").innerText = `Welcome, ${name}`;
+document.getElementById("dateBox").innerText = `${day}, ${date}`;
 
-  function setStatus(status, btn) {
-    selectedStatus = status;
+function setStatus(status, btn) {
+  selectedStatus = status;
+  document.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
 
-    document.querySelectorAll(".status-buttons button")
-      .forEach(b => b.classList.remove("active"));
+function submitAttendance() {
 
-    btn.classList.add("active");
-
-    document.getElementById("currentStatus").innerText = status;
+  if (!selectedStatus) {
+    document.getElementById("msg").innerText = "Select status!";
+    return;
   }
 
-  function submitAttendance() {
+  const remark = document.getElementById("remark").value;
 
-    if (!selectedStatus) {
-      document.getElementById("msg").innerText = "⚠️ Please select status";
-      return;
-    }
+  const url = `${scriptURL}?action=add&name=${name}&date=${date}&day=${day}&status=${selectedStatus}&remark=${remark}`;
 
-    const remark = document.getElementById("remark").value;
-    const button = document.getElementById("submitBtn");
+  fetch(url)
+    .then(res => res.text())
+    .then(data => {
 
-    button.innerText = "Saving...";
-    button.disabled = true;
+      if (data === "duplicate") {
+        document.getElementById("msg").innerText = "⚠️ Already marked today!";
+      } 
+      else if (data === "success") {
+        document.getElementById("msg").innerText = "✅ Saved!";
+        loadHistory();
+      }
 
-    const url = `https://script.google.com/macros/s/AKfycbzpZ_v23oPRxyhG8twFed2_wc9UnikCjCUddRa0Ssa5kVTmEoViku93GV80Rq9bRaGy/exec?name=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}&day=${encodeURIComponent(day)}&status=${encodeURIComponent(selectedStatus)}&remark=${encodeURIComponent(remark)}`;
+    });
+}
 
-    fetch(url)
-      .then(res => res.text())
-      .then(data => {
-        if (data === "success") {
-          document.getElementById("msg").innerText = "✅ Attendance Saved!";
-          document.getElementById("remark").value = "";
-        } else {
-          document.getElementById("msg").innerText = "❌ " + data;
-        }
+// 📊 LOAD HISTORY
+function loadHistory() {
 
-        button.innerText = "Submit";
-        button.disabled = false;
-      })
-      .catch(err => {
-        document.getElementById("msg").innerText = "❌ Network error";
-        console.log(err);
+  fetch(`${scriptURL}?action=get`)
+    .then(res => res.json())
+    .then(data => {
 
-        button.innerText = "Submit";
-        button.disabled = false;
+      let html = "";
+
+      data.forEach(row => {
+        html += `
+          <tr>
+            <td>${row.date}</td>
+            <td>${row.day}</td>
+            <td>${row.status}</td>
+            <td>${row.remark}</td>
+          </tr>
+        `;
       });
-  }
+
+      document.getElementById("historyTable").innerHTML = html;
+    });
+}
+
+// Load on start
+loadHistory();
 
 </script>
 
