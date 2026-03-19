@@ -166,7 +166,7 @@
     button.innerText = "Saving...";
     button.disabled = true;
 
-    const url = `https://script.google.com/macros/s/AKfycbymDXyTSl1HjtxvaRphyE9g82id557mnNA-g7WJshgwCrNjh4-c1thQC6ncnqoVoGZ2/exec?name=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}&day=${encodeURIComponent(day)}&status=${encodeURIComponent(selectedStatus)}&remark=${encodeURIComponent(remark)}`;
+    const url = `https://script.google.com/macros/s/AKfycbzpZ_v23oPRxyhG8twFed2_wc9UnikCjCUddRa0Ssa5kVTmEoViku93GV80Rq9bRaGy/exec?name=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}&day=${encodeURIComponent(day)}&status=${encodeURIComponent(selectedStatus)}&remark=${encodeURIComponent(remark)}`;
 
     fetch(url)
       .then(res => res.text())
