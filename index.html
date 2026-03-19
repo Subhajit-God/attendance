@@ -156,16 +156,19 @@
     button.innerText = "Saving...";
     button.disabled = true;
 
-    fetch("https://script.google.com/macros/s/AKfycbymDXyTSl1HjtxvaRphyE9g82id557mnNA-g7WJshgwCrNjh4-c1thQC6ncnqoVoGZ2/exec", {
-      method: "POST",
-      body: JSON.stringify({
-        name: name,
-        date: date,
-        day: day,
-        status: selectedStatus,
-        remark: remark
-      })
-    })
+    fetch("YOUR_SCRIPT_URL_HERE", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    name: name,
+    date: date,
+    day: day,
+    status: selectedStatus,
+    remark: remark
+  })
+})
     .then(res => res.text())
     .then(() => {
       document.getElementById("msg").innerText = "✅ Attendance Saved!";
