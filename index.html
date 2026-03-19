@@ -15,11 +15,11 @@
     }
 
     .container {
-      width: 320px;
-      padding: 20px;
+      width: 340px;
+      padding: 25px;
       border-radius: 16px;
       background: #fff;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
       text-align: center;
     }
 
@@ -41,9 +41,14 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      width: 80px;
+      width: 90px;
       font-weight: bold;
-      opacity: 0.8;
+      opacity: 0.85;
+      transition: 0.2s;
+    }
+
+    .status-buttons button:hover {
+      transform: scale(1.05);
     }
 
     .status-buttons button.active {
@@ -56,11 +61,16 @@
     .holiday { background: #ff9800; color: white; }
 
     input {
-      width: 90%;
+      width: 92%;
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      margin-top: 10px;
+      margin-top: 12px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #667eea;
     }
 
     button.submit {
@@ -73,6 +83,7 @@
       color: white;
       font-weight: bold;
       cursor: pointer;
+      transition: 0.2s;
     }
 
     button.submit:hover {
@@ -80,9 +91,9 @@
     }
 
     #msg {
-      margin-top: 10px;
+      margin-top: 12px;
       font-size: 14px;
-      color: green;
+      font-weight: bold;
     }
 
     .status-text {
@@ -156,28 +167,35 @@
     button.innerText = "Saving...";
     button.disabled = true;
 
-    fetch("YOUR_SCRIPT_URL_HERE", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    name: name,
-    date: date,
-    day: day,
-    status: selectedStatus,
-    remark: remark
-  })
-})
-    .then(res => res.text())
-    .then(() => {
-      document.getElementById("msg").innerText = "✅ Attendance Saved!";
-      document.getElementById("remark").value = "";
+    fetch("https://script.google.com/macros/s/AKfycbymDXyTSl1HjtxvaRphyE9g82id557mnNA-g7WJshgwCrNjh4-c1thQC6ncnqoVoGZ2/exec", {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain"
+      },
+      body: JSON.stringify({
+        name: name,
+        date: date,
+        day: day,
+        status: selectedStatus,
+        remark: remark
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "success") {
+        document.getElementById("msg").innerText = "✅ Attendance Saved!";
+        document.getElementById("remark").value = "";
+      } else {
+        document.getElementById("msg").innerText = "❌ " + data.message;
+      }
+
       button.innerText = "Submit";
       button.disabled = false;
     })
-    .catch(() => {
-      document.getElementById("msg").innerText = "❌ Error saving data";
+    .catch(err => {
+      document.getElementById("msg").innerText = "❌ Network error";
+      console.log(err);
+
       button.innerText = "Submit";
       button.disabled = false;
     });
