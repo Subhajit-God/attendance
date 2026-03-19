@@ -100,7 +100,6 @@
       margin-top: 10px;
       font-size: 14px;
     }
-
   </style>
 </head>
 
@@ -167,38 +166,28 @@
     button.innerText = "Saving...";
     button.disabled = true;
 
-    fetch("https://script.google.com/macros/s/AKfycbymDXyTSl1HjtxvaRphyE9g82id557mnNA-g7WJshgwCrNjh4-c1thQC6ncnqoVoGZ2/exec", {
-      method: "POST",
-      headers: {
-        "Content-Type": "text/plain"
-      },
-      body: JSON.stringify({
-        name: name,
-        date: date,
-        day: day,
-        status: selectedStatus,
-        remark: remark
+    const url = `https://script.google.com/macros/s/AKfycbymDXyTSl1HjtxvaRphyE9g82id557mnNA-g7WJshgwCrNjh4-c1thQC6ncnqoVoGZ2/exec?name=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}&day=${encodeURIComponent(day)}&status=${encodeURIComponent(selectedStatus)}&remark=${encodeURIComponent(remark)}`;
+
+    fetch(url)
+      .then(res => res.text())
+      .then(data => {
+        if (data === "success") {
+          document.getElementById("msg").innerText = "✅ Attendance Saved!";
+          document.getElementById("remark").value = "";
+        } else {
+          document.getElementById("msg").innerText = "❌ " + data;
+        }
+
+        button.innerText = "Submit";
+        button.disabled = false;
       })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === "success") {
-        document.getElementById("msg").innerText = "✅ Attendance Saved!";
-        document.getElementById("remark").value = "";
-      } else {
-        document.getElementById("msg").innerText = "❌ " + data.message;
-      }
+      .catch(err => {
+        document.getElementById("msg").innerText = "❌ Network error";
+        console.log(err);
 
-      button.innerText = "Submit";
-      button.disabled = false;
-    })
-    .catch(err => {
-      document.getElementById("msg").innerText = "❌ Network error";
-      console.log(err);
-
-      button.innerText = "Submit";
-      button.disabled = false;
-    });
+        button.innerText = "Submit";
+        button.disabled = false;
+      });
   }
 
 </script>
