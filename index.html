@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Attendance Tracker</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      width: 320px;
+      padding: 20px;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 5px;
+    }
+
+    .date-box {
+      background: #f1f1f1;
+      padding: 8px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .status-buttons button {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 80px;
+      font-weight: bold;
+      opacity: 0.8;
+    }
+
+    .status-buttons button.active {
+      border: 2px solid black;
+      opacity: 1;
+    }
+
+    .present { background: #4CAF50; color: white; }
+    .absent { background: #f44336; color: white; }
+    .holiday { background: #ff9800; color: white; }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+    }
+
+    button.submit {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #667eea;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button.submit:hover {
+      background: #5a67d8;
+    }
+
+    #msg {
+      margin-top: 10px;
+      font-size: 14px;
+      color: green;
+    }
+
+    .status-text {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2 id="welcome"></h2>
+
+  <div class="date-box" id="dateBox"></div>
+
+  <div class="status-buttons">
+    <button class="present" onclick="setStatus('Present', this)">Present</button>
+    <button class="absent" onclick="setStatus('Absent', this)">Absent</button>
+    <button class="holiday" onclick="setStatus('Holiday', this)">Holiday</button>
+  </div>
+
+  <input type="text" id="remark" placeholder="Add remark (optional)">
+
+  <button class="submit" id="submitBtn" onclick="submitAttendance()">Submit</button>
+
+  <p class="status-text">Today's Status: <span id="currentStatus">Not marked</span></p>
+
+  <p id="msg"></p>
+
+</div>
+
+<script>
+
+  const name = "Subhajit Das";
+  let selectedStatus = "";
+
+  const today = new Date();
+  const date = today.toLocaleDateString();
+  const day = today.toLocaleDateString('en-US', { weekday: 'long' });
+
+  document.getElementById("welcome").innerText =
+    `👋 Welcome, ${name}`;
+
+  document.getElementById("dateBox").innerText =
+    `📅 ${day}, ${date}`;
+
+  function setStatus(status, btn) {
+    selectedStatus = status;
+
+    document.querySelectorAll(".status-buttons button")
+      .forEach(b => b.classList.remove("active"));
+
+    btn.classList.add("active");
+
+    document.getElementById("currentStatus").innerText = status;
+  }
+
+  function submitAttendance() {
+
+    if (!selectedStatus) {
+      document.getElementById("msg").innerText = "⚠️ Please select status";
+      return;
+    }
+
+    const remark = document.getElementById("remark").value;
+    const button = document.getElementById("submitBtn");
+
+    button.innerText = "Saving...";
+    button.disabled = true;
+
+    fetch("https://script.google.com/macros/s/AKfycbymDXyTSl1HjtxvaRphyE9g82id557mnNA-g7WJshgwCrNjh4-c1thQC6ncnqoVoGZ2/exec", {
+      method: "POST",
+      body: JSON.stringify({
+        name: name,
+        date: date,
+        day: day,
+        status: selectedStatus,
+        remark: remark
+      })
+    })
+    .then(res => res.text())
+    .then(() => {
+      document.getElementById("msg").innerText = "✅ Attendance Saved!";
+      document.getElementById("remark").value = "";
+      button.innerText = "Submit";
+      button.disabled = false;
+    })
+    .catch(() => {
+      document.getElementById("msg").innerText = "❌ Error saving data";
+      button.innerText = "Submit";
+      button.disabled = false;
+    });
+  }
+
+</script>
+
+</body>
+</html>
